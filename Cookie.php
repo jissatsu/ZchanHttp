@@ -3,9 +3,6 @@ namespace zero0x00chan;
 
 class Cookie {
 
-    // This holds the number of created cookies
-    public static $num_cookies = 0;
-
     // A list containing all of the cookies
     public static $cookie_jar = [];
 
@@ -159,7 +156,7 @@ class Cookie {
         // if the cookie string is legit and no cookie with name $cname exists
         // push the cookie string to the $cookie_jar and increment $num_cookies
         if ( $cookieString && !self::Exists( $cname ) ) {
-            self::$cookie_jar[$cname] = $cookieString; self::$num_cookies += 1;
+            self::$cookie_jar[$cname] = $cookieString;
             // This here is necessary so that the new cookie doesn't inherit
             // any data from the previous one
             $this->ClearCookie();
