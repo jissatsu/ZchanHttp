@@ -3,9 +3,6 @@ namespace zero0x00chan;
 
 class Cookie {
 
-    // This holds the number of created cookies
-    public static $num_cookies = 0;
-
     // A list containing all of the cookies
     public static $cookie_jar = [];
 
@@ -150,16 +147,16 @@ class Cookie {
             return False;
         }
         $exp = $this->CurrentCookie['Expires'];
-        $this->CurrentCookie['Expires'] = gmdate( 'D, d-M-Y H:i:s T', time() + (int) $exp );
+        $this->CurrentCookie['Expires'] = gmdate( 'D, d-M-Y H:i:s T', $exp );
 
         // create the cookie string
         $cookieString = $this->toString( $this->CurrentCookie );
         $cname = $this->CurrentCookie['name'];
 
         // if the cookie string is legit and no cookie with name $cname exists
-        // push the cookie string to the $cookie_jar and increment $num_cookies
+        // push the raw cookie string to the $cookie_jar 
         if ( $cookieString && !self::Exists( $cname ) ) {
-            self::$cookie_jar[$cname] = $cookieString; self::$num_cookies += 1;
+            self::$cookie_jar[$cname] = $cookieString;
             // This here is necessary so that the new cookie doesn't inherit
             // any data from the previous one
             $this->ClearCookie();
@@ -188,12 +185,14 @@ class Cookie {
      * @param string $name This is the name of the cookie to be deleted
      */
     public function Delete( $name ){
-        if ( !self::Exists( $name ) ) {
-            self::$error = "Cookie $name does not exist!";
-            return False;
+        if ( self::Exists( $name ) ) { unset( self::$cookie_jar[$name] ); }
+        if ( isset( $_COOKIE[$name] ) ) {
+            $this->SetName( $name );
+            $this->SetValue( '' );
+            $this->SetExpiry( time() - 86600 );
+            $this->Add();
+            $this->Dispatch( $name );
         }
-        $date = gmdate( 'D, d-M-Y H:i:s T', time() - 12000 );
-        // still need to code this shit
     }
 
     /*
@@ -220,12 +219,12 @@ class Cookie {
      * Build the cookie string from the provided cookie params in `$currentCookie`
      * @param array $currentCookie This is the array with the cookie data
      */
-    public static function toString( $currentCookie ){
+    public function toString( $currentCookie ){
         $ctype = strtolower( gettype( $currentCookie ) );
         switch ( $ctype ) {
             case 'array':
                 $string = '';
-                $string .= $currentCookie['name'] . "=" . $currentCookie['value'];
+                $string .= $currentCookie['name'] . "=" . urlencode( $currentCookie['value'] );
                 foreach ( $currentCookie as $k => $v ) {
                     if ( $k !== 'name' && $k !== 'value' && $k !== 'HttpOnly' && $k !== 'Secure' ) {
                         $string .= ($v != '') ? "; " . $k . "=" . $v : '';
