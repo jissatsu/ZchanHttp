@@ -1,5 +1,5 @@
 <?php
-namespace zero0x00chan;
+namespace Zchan;
 
 class Http {
 
