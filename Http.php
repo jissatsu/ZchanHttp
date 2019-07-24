@@ -86,7 +86,7 @@ class Http {
      * $param bool $raw This indicates if the user wants to use raw encoding
      */
     public static function EncodeURL( string $url, bool $raw ){
-        
+        // still need to code this shit
     }
 
     /*
@@ -95,7 +95,7 @@ class Http {
      * $param bool $raw This indicates if the user used raw encoding for the url
      */
     public static function DecodeURL( string $url, bool $raw ){
-
+        // still need to code this shit
     }
 
     /*
