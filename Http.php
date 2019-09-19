@@ -1,5 +1,6 @@
 <?php
-namespace Zchan;
+namespace zero0x00chan;
+$errd = include_once $_SERVER['DOCUMENT_ROOT'] . "/zero0x00chan/site/errdocs.php";
 
 class Http {
 
@@ -86,7 +87,27 @@ class Http {
      * $param bool $raw This indicates if the user wants to use raw encoding
      */
     public static function EncodeURL( string $url, bool $raw ){
-        // still need to code this shit
+        $encoded = '';
+        $url     = utf8_encode( $url );
+        $chars   = "0123456789ABCDEF";
+        if ( $url ) {
+            do{
+                $c = ord( $url[$i] );
+                if ( $url[$i] == ' ' ) {
+                    $encoded .= '+';
+                    continue;
+                }
+                if ( ($c >= 65 && $c <= 90) || ($c >= 97 && $c <= 122) || 
+                     ($c >= 48 && $c <= 57) || $c == ord('-') || $c == ord('.') || $c == ord('_') || $c == ord('~') ) {
+                    $encoded .= $url[$i];
+                } else {
+                    $encoded .= '%';
+                    $encoded .= $chars[$c >> 4];
+                    $encoded .= $chars[$c & 15];
+                }
+            } while( $i++ < strlen( $url ) - 1 );
+        }
+        return $encoded;
     }
 
     /*
@@ -94,8 +115,8 @@ class Http {
      * @param string $url This is the url to be encoded
      * $param bool $raw This indicates if the user used raw encoding for the url
      */
-    public static function DecodeURL( string $url, bool $raw ){
-        // still need to code this shit
+    public static function DecodeURL( string $url = '', bool $raw ){
+
     }
 
     /*
@@ -206,23 +227,52 @@ class Http {
     }
 
     /*
-     * Throw an http error with error code $errCode and error document $errDoc
+     * Get the ip of the client
+     * @param int $type This indicates the ip type we want IPv4 or IPv6
      */
-    public static function Err( int $errCode, string $errDoc ){
+    public static function GetClientIp( int $type ){
+        //switch ( $type ) {
+            
+        //}
+    }
+
+    /*
+     * Throw an http error with error code $errCode and error document $errDoc
+     * @param int $errCode
+     */
+    public static function Err( int $errCode, $type ){
+        global $errd;
+        switch ( $type ) {
+            case 'invite':
+                self::BuildNetErr( 403, $errd['000'] );
+                break;
+            case 'http':
+                self::BuildNetErr( $errCode, $errd[(string)$errCode] );
+                break;
+        }
+    }
+
+    /*
+     * 
+     */
+    public static function BuildNetErr( int $errCode, string $errDoc ){
         $proto = strtoupper( $_SERVER['SERVER_PROTOCOL'] );
         if ( !function_exists( 'http_reponse_code' ) ) {
             header( $proto . ' ' . $errCode . ' ' . self::$codes[(string)$errCode] );
-            require_once $errDoc;
+            require_once $_SERVER['DOCUMENT_ROOT'] . $errDoc;
             die();
         } else {
             http_response_code( $errCode );
-            require_once $errDoc;
+            require_once $_SERVER['DOCUMENT_ROOT'] . $errDoc;
             die();
         }
     }
 
     /*
-     * Create a new session
+	 * Create a new session
+	 * @param string $sessName The name of the session
+	 * @param string $sessKey
+	 * @param string $sessValue
      */
     public static function CreateSession( string $sessName, string $sessKey = '', $sessValue = '' ) {
         if ( !$sessName ) { return False; }
@@ -247,7 +297,9 @@ class Http {
     }
 
     /*
-     * Retrieve session data
+	 * Retrieve session data
+	 * @param string $sessName The name of the session
+	 * @param string $sessKey 
      */
     public static function RetrieveSession( string $sessName, string $sessKey = '' ) {
         if ( !self::SessionStarted() ) { @session_start(); }
@@ -258,7 +310,8 @@ class Http {
     }
 
     /*
-     * Destroy the session
+	 * Destroy the session
+	 * @param string $sessionName The name of the session to destroy
      */
     public static function DestroySession( string $sessionName = '' ){
         if ( !self::SessionStarted() ) {
