@@ -1,6 +1,5 @@
 <?php
-namespace zero0x00chan;
-$errd = include_once $_SERVER['DOCUMENT_ROOT'] . "/zero0x00chan/site/errdocs.php";
+namespace Zchan;
 
 class Http {
 
