@@ -1,5 +1,6 @@
 <?php
-namespace Zchan;
+namespace zero0x00chan;
+$errd = include_once $_SERVER['DOCUMENT_ROOT'] . "/zero0x00chan/site/errdocs.php";
 
 class Http {
 
@@ -83,12 +84,13 @@ class Http {
     /*
      * Encode the given url
      * @param string $url This is the url to be encoded
-     * $param bool $raw This indicates if the user wants to use raw encoding
+     * @return string
      */
-    public static function EncodeURL( string $url, bool $raw ){
+    public static function EncodeURL( string $url ){
+        $i       = 0;
         $encoded = '';
-        $url     = utf8_encode( $url );
         $chars   = "0123456789ABCDEF";
+        $url     = utf8_encode( $url );
         if ( $url ) {
             do{
                 $c = ord( $url[$i] );
@@ -112,10 +114,29 @@ class Http {
     /*
      * Decode the given url
      * @param string $url This is the url to be encoded
-     * $param bool $raw This indicates if the user used raw encoding for the url
+     * @return string
      */
-    public static function DecodeURL( string $url = '', bool $raw ){
-
+    public static function DecodeURL( string $url ){
+        $i       = 0;
+        $hex     = '';
+        $decoded = '';
+        if ( $url ) {
+            do{
+                if ( $url[$i] == '+' ) {
+                    $decoded .= "\x20";
+                    continue;
+                }
+                if ( $url[$i] == '%' ) {
+                    $hex .= $url[$i+1];
+                    $hex .= $url[$i+2];
+                    $decoded .= chr( hexdec( $hex ) ); $hex = '';
+                    $i += 2;
+                } else {
+                    $decoded .= $url[$i];
+                }
+            } while( $i++ < strlen( $url ) - 1 );
+        }
+        return utf8_decode( $decoded );
     }
 
     /*
